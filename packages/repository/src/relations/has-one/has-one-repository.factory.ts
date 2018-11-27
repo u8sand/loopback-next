@@ -13,7 +13,7 @@ import {isTypeResolver} from '../../type-resolver';
 import {Getter, HasOneDefinition} from '../relation.types';
 import {DefaultHasOneRepository, HasOneRepository} from './has-one.repository';
 
-const debug = debugFactory('loopback:repository:has-many-repository-factory');
+const debug = debugFactory('loopback:repository:has-one-repository-factory');
 
 export type HasOneRepositoryFactory<Target extends Entity, ForeignKeyType> = (
   fkValue: ForeignKeyType,
