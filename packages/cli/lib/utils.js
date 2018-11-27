@@ -396,6 +396,14 @@ exports.getServiceFileName = function(serviceName) {
 };
 
 /**
+ * Returns the scriptName in the directory file format for the script
+ * @param {string} scriptName
+ */
+exports.getScriptFileName = function(scriptName) {
+  return `${_.kebabCase(scriptName)}.script.ts`;
+};
+
+/**
  *
  * Returns the connector property for the datasource file
  * @param {string} datasourcesDir path for sources
@@ -515,4 +523,5 @@ exports.repositoriesDir = 'repositories';
 exports.datasourcesDir = 'datasources';
 exports.servicesDir = 'services';
 exports.modelsDir = 'models';
+exports.scriptsDir = 'scripts';
 exports.sourceRootDir = 'src';
