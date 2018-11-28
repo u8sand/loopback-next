@@ -19,11 +19,7 @@ import {RestHttpErrors} from './rest-http-error';
 import {ResolvedRoute} from './router';
 import {OperationArgs, PathParameterValues, Request} from './types';
 import {validateRequestBody} from './validation/request-body.validator';
-
 const debug = debugModule('loopback:rest:parser');
-
-export const QUERY_NOT_PARSED = {};
-Object.freeze(QUERY_NOT_PARSED);
 
 /**
  * Parses the request to derive arguments to be passed in for the Application
@@ -106,7 +102,6 @@ function getParamFromRequest(
     case 'header':
       // @jannyhou TBD: check edge cases
       return request.headers[spec.name.toLowerCase()];
-      break;
     // TODO(jannyhou) to support `cookie`,
     // see issue https://github.com/strongloop/loopback-next/issues/997
     default:
@@ -114,8 +109,13 @@ function getParamFromRequest(
   }
 }
 
+/**
+ * This method is mostly used for unit testing where Express is not present
+ * to parse query string into `request.query` object
+ * @param request
+ */
 function ensureRequestQueryWasParsed(request: Request) {
-  if (request.query && request.query !== QUERY_NOT_PARSED) return;
+  if (request.query) return;
 
   const input = parseUrl(request)!.query;
   if (input && typeof input === 'string') {

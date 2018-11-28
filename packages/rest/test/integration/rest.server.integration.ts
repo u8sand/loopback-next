@@ -18,6 +18,7 @@ import {
   RestComponent,
   get,
   Request,
+  Response,
   RestServerConfig,
   BodyParser,
 } from '../..';
@@ -50,6 +51,28 @@ describe('RestServer (integration)', () => {
       .expect(200, 'Hello');
     await server.stop();
     expect(server.url).to.be.undefined();
+  });
+
+  it('parses query without decorated rest query params', async () => {
+    // This handler responds with the query object (which is expected to
+    // be parsed by Express)
+    function requestWithQueryHandler(handler: {
+      request: Request;
+      response: Response;
+    }) {
+      const {request, response} = handler;
+      response.json(request.query);
+      response.end();
+    }
+
+    // See https://github.com/strongloop/loopback-next/issues/2088
+    const server = await givenAServer({rest: {port: 0, host: '127.0.0.1'}});
+    server.handler(requestWithQueryHandler);
+    await server.start();
+    await supertest(server.url)
+      .get('/?x=1&y[a]=2')
+      .expect(200, {x: '1', y: {a: '2'}});
+    await server.stop();
   });
 
   it('updates rest.port binding when listening on ephemeral port', async () => {
