@@ -78,6 +78,38 @@ describe('createHasOneRepositoryFactory', () => {
     ).to.throw(/target model Address is missing.*foreign key customerId/);
   });
 
+  it('rejects relations with keyTo that is not an id', () => {
+    const relationMeta = givenHasOneDefinition({
+      name: 'order',
+      target: () => Order,
+    });
+
+    expect(() =>
+      createHasOneRepositoryFactory(
+        relationMeta,
+        Getter.fromValue(customerRepo),
+      ),
+    ).to.throw(
+      /foreign key customerId must be an id property that is not auto generated/,
+    );
+  });
+
+  it('rejects relations with keyTo that is a generated id property', () => {
+    const relationMeta = givenHasOneDefinition({
+      name: 'profile',
+      target: () => Profile,
+    });
+
+    expect(() =>
+      createHasOneRepositoryFactory(
+        relationMeta,
+        Getter.fromValue(customerRepo),
+      ),
+    ).to.throw(
+      /foreign key customerId must be an id property that is not auto generated/,
+    );
+  });
+
   /*------------- HELPERS ---------------*/
 
   class Address extends Entity {
@@ -98,6 +130,42 @@ describe('createHasOneRepositoryFactory', () => {
     zipcode: String;
     city: String;
     province: String;
+  }
+
+  class Order extends Entity {
+    static definition = new ModelDefinition('Order')
+      .addProperty('customerId', {
+        type: 'string',
+        id: false,
+      })
+      .addProperty('description', {
+        type: 'string',
+        required: true,
+      })
+
+      .addProperty('isShipped', {
+        type: 'boolean',
+        required: false,
+      });
+    customerId: string;
+    description: string;
+    isShipped: boolean;
+  }
+
+  class Profile extends Entity {
+    static definition = new ModelDefinition('Profile')
+      .addProperty('customerId', {
+        type: 'string',
+        id: true,
+        generated: true,
+      })
+      .addProperty('description', {
+        type: 'string',
+        required: true,
+      });
+
+    customerId: string;
+    description: string;
   }
 
   class Customer extends Entity {

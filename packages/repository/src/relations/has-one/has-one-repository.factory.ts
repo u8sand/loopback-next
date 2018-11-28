@@ -98,12 +98,10 @@ function resolveHasOneMetadata(
     } is missing definition of foreign key ${defaultFkName}`;
     throw new InvalidRelationError(reason, relationMeta);
   }
-  //FIXME(b-admike): add unit tests for logic below
+
   const defaultFkProp = targetModel.definition.properties[defaultFkName];
   if (!defaultFkProp.id || defaultFkProp.generated) {
-    const reason = `target model ${
-      targetModel.name
-    } must be an id property that is not auto generated`;
+    const reason = `foreign key ${defaultFkName} must be an id property that is not auto generated`;
     throw new InvalidRelationError(reason, relationMeta);
   }
 

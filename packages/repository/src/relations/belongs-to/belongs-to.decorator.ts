@@ -30,7 +30,6 @@ export function belongsTo<T extends Entity>(
       // allows controller methods to exclude required properties
       // required: true,
     };
-    //FIXME(b-admike): Add unit tests
     Object.assign(propMeta, propertyMeta);
     property(propMeta)(decoratedTarget, decoratedKey);
 
