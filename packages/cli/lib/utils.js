@@ -396,11 +396,11 @@ exports.getServiceFileName = function(serviceName) {
 };
 
 /**
- * Returns the scriptName in the directory file format for the script
- * @param {string} scriptName
+ * Returns the observerName in the directory file format for the observer
+ * @param {string} observerName
  */
-exports.getScriptFileName = function(scriptName) {
-  return `${_.kebabCase(scriptName)}.script.ts`;
+exports.getObserverFileName = function(observerName) {
+  return `${_.kebabCase(observerName)}.observer.ts`;
 };
 
 /**
@@ -523,5 +523,5 @@ exports.repositoriesDir = 'repositories';
 exports.datasourcesDir = 'datasources';
 exports.servicesDir = 'services';
 exports.modelsDir = 'models';
-exports.scriptsDir = 'scripts';
+exports.observersDir = 'observers';
 exports.sourceRootDir = 'src';

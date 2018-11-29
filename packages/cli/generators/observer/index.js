@@ -6,14 +6,14 @@
 'use strict';
 const _ = require('lodash');
 const ArtifactGenerator = require('../../lib/artifact-generator');
-const debug = require('../../lib/debug')('script-generator');
+const debug = require('../../lib/debug')('observer-generator');
 const inspect = require('util').inspect;
 const path = require('path');
 const utils = require('../../lib/utils');
 
-const SCRIPT_TEMPLATE = 'script-template.ts.ejs';
+const SCRIPT_TEMPLATE = 'observer-template.ts.ejs';
 
-module.exports = class ScriptGenerator extends ArtifactGenerator {
+module.exports = class ObserverGenerator extends ArtifactGenerator {
   // Note: arguments and options should be defined in the constructor.
   constructor(args, opts) {
     super(args, opts);
@@ -21,13 +21,13 @@ module.exports = class ScriptGenerator extends ArtifactGenerator {
 
   _setupGenerator() {
     this.artifactInfo = {
-      type: 'script',
+      type: 'observer',
       rootDir: utils.sourceRootDir,
     };
 
     this.artifactInfo.outDir = path.resolve(
       this.artifactInfo.rootDir,
-      utils.scriptsDir,
+      utils.observersDir,
     );
 
     this.artifactInfo.defaultTemplate = SCRIPT_TEMPLATE;
@@ -48,7 +48,7 @@ module.exports = class ScriptGenerator extends ArtifactGenerator {
    * Ask for Service Name
    */
   async promptArtifactName() {
-    debug('Prompting for script name');
+    debug('Prompting for observer name');
     if (this.shouldExit()) return;
 
     if (this.options.name) {
@@ -76,11 +76,11 @@ module.exports = class ScriptGenerator extends ArtifactGenerator {
 
     // Setting up data for templates
     this.artifactInfo.className =
-      utils.toClassName(this.artifactInfo.name) + 'Script';
+      utils.toClassName(this.artifactInfo.name) + 'Observer';
     this.artifactInfo.fileName = utils.kebabCase(this.artifactInfo.name);
 
     Object.assign(this.artifactInfo, {
-      outFile: utils.getScriptFileName(this.artifactInfo.name),
+      outFile: utils.getObserverFileName(this.artifactInfo.name),
     });
 
     const source = this.templatePath(this.artifactInfo.defaultTemplate);

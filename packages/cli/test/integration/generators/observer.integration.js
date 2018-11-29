@@ -11,21 +11,21 @@ const testlab = require('@loopback/testlab');
 
 const TestSandbox = testlab.TestSandbox;
 
-const generator = path.join(__dirname, '../../../generators/script');
-const SANDBOX_FILES = require('../../fixtures/script').SANDBOX_FILES;
+const generator = path.join(__dirname, '../../../generators/observer');
+const SANDBOX_FILES = require('../../fixtures/observer').SANDBOX_FILES;
 const testUtils = require('../../test-utils');
 
 // Test Sandbox
 const SANDBOX_PATH = path.resolve(__dirname, '..', '.sandbox');
 const sandbox = new TestSandbox(SANDBOX_PATH);
 
-describe('lb4 script', () => {
+describe('lb4 observer', () => {
   beforeEach('reset sandbox', async () => {
     await sandbox.reset();
   });
 
-  describe('valid generation of scripts', () => {
-    it('generates a basic script from command line arguments', async () => {
+  describe('valid generation of observers', () => {
+    it('generates a basic observer from command line arguments', async () => {
       await testUtils
         .executeGenerator(generator)
         .inDir(SANDBOX_PATH, () =>
@@ -37,7 +37,7 @@ describe('lb4 script', () => {
       verifyGeneratedScript();
     });
 
-    it('generates a script from a config file', async () => {
+    it('generates a observer from a config file', async () => {
       await testUtils
         .executeGenerator(generator)
         .inDir(SANDBOX_PATH, () =>
@@ -45,29 +45,29 @@ describe('lb4 script', () => {
             additionalFiles: SANDBOX_FILES,
           }),
         )
-        .withArguments('--config myscriptconfig.json');
+        .withArguments('--config myobserverconfig.json');
       verifyGeneratedScript();
     });
   });
 });
 
 // Sandbox constants
-const SCRIPT_APP_PATH = 'src/scripts';
+const SCRIPT_APP_PATH = 'src/observers';
 const INDEX_FILE = path.join(SANDBOX_PATH, SCRIPT_APP_PATH, 'index.ts');
 
 function verifyGeneratedScript() {
   const expectedFile = path.join(
     SANDBOX_PATH,
     SCRIPT_APP_PATH,
-    'my-observer.script.ts',
+    'my-observer.observer.ts',
   );
   assert.file(expectedFile);
   assert.fileContent(
     expectedFile,
-    /export class MyObserverScript implements LifeCycleObserver {/,
+    /export class MyObserverObserver implements LifeCycleObserver {/,
   );
   assert.fileContent(expectedFile, /async start\(\): Promise\<void\> {/);
   assert.fileContent(expectedFile, /async stop\(\): Promise\<void\> {/);
   assert.file(INDEX_FILE);
-  assert.fileContent(INDEX_FILE, /export \* from '.\/my-observer.script';/);
+  assert.fileContent(INDEX_FILE, /export \* from '.\/my-observer.observer';/);
 }
