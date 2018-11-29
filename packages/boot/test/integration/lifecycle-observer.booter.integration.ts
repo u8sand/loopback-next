@@ -12,25 +12,25 @@ describe('lifecycle script booter integration tests', () => {
   const SANDBOX_PATH = resolve(__dirname, '../../.sandbox');
   const sandbox = new TestSandbox(SANDBOX_PATH);
 
-  const SCRIPTS_PREFIX = 'lifeCycleObservers';
-  const SCRIPTS_TAG = CoreBindings.LIFE_CYCLE_OBSERVER_TAG;
+  const OBSERVER_PREFIX = 'lifeCycleObservers';
+  const OBSERVER_TAG = CoreBindings.Tags.LIFE_CYCLE_OBSERVER;
 
   let app: BooterApp;
 
   beforeEach('reset sandbox', () => sandbox.reset());
   beforeEach(getApp);
 
-  it('boots scripts when app.boot() is called', async () => {
+  it('boots life cycle observers when app.boot() is called', async () => {
     const expectedBinding = {
-      key: `${SCRIPTS_PREFIX}.MyLifeCycleObserver`,
-      tags: [SCRIPTS_TAG],
+      key: `${OBSERVER_PREFIX}.MyLifeCycleObserver`,
+      tags: [OBSERVER_TAG],
       scope: BindingScope.SINGLETON,
     };
 
     await app.boot();
 
     const bindings = app
-      .findByTag(SCRIPTS_TAG)
+      .findByTag(OBSERVER_TAG)
       .map(b => ({key: b.key, tags: b.tagNames, scope: b.scope}));
     expect(bindings).to.containEql(expectedBinding);
   });
@@ -38,8 +38,8 @@ describe('lifecycle script booter integration tests', () => {
   async function getApp() {
     await sandbox.copyFile(resolve(__dirname, '../fixtures/application.js'));
     await sandbox.copyFile(
-      resolve(__dirname, '../fixtures/lifecycle-script.artifact.js'),
-      'scripts/lifecycle-script.script.js',
+      resolve(__dirname, '../fixtures/lifecycle-observer.artifact.js'),
+      'observers/lifecycle-observer.observer.js',
     );
 
     const MyApp = require(resolve(SANDBOX_PATH, 'application.js')).BooterApp;

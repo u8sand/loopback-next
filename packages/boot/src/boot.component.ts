@@ -11,7 +11,7 @@ import {
   DataSourceBooter,
   RepositoryBooter,
   ServiceBooter,
-  LifeCycleScriptBooter,
+  LifeCycleObserverBooter,
 } from './booters';
 import {Bootstrapper} from './bootstrapper';
 import {BootBindings} from './keys';
@@ -30,7 +30,7 @@ export class BootComponent implements Component {
     RepositoryBooter,
     ServiceBooter,
     DataSourceBooter,
-    LifeCycleScriptBooter,
+    LifeCycleObserverBooter,
   ];
 
   /**

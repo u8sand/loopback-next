@@ -15,31 +15,34 @@ import {ArtifactOptions} from '../interfaces';
 import {BootBindings} from '../keys';
 import {BaseArtifactBooter} from './base-artifact.booter';
 
+import * as debugFactory from 'debug';
+const debug = debugFactory('loopback:boot:lifecycle-observer-booter');
+
 type LifeCycleObserverClass = Constructor<LifeCycleObserver>;
 
 /**
- * A class that extends BaseArtifactBooter to boot the 'LifeCycleScript' artifact type.
+ * A class that extends BaseArtifactBooter to boot the 'LifeCycleObserver' artifact type.
  *
  * Supported phases: configure, discover, load
  *
  * @param app Application instance
  * @param projectRoot Root of User Project relative to which all paths are resolved
- * @param [bootConfig] LifeCycleScript Artifact Options Object
+ * @param [bootConfig] LifeCycleObserver Artifact Options Object
  */
-export class LifeCycleScriptBooter extends BaseArtifactBooter {
+export class LifeCycleObserverBooter extends BaseArtifactBooter {
   observers: LifeCycleObserverClass[];
 
   constructor(
     @inject(CoreBindings.APPLICATION_INSTANCE)
     public app: Application,
     @inject(BootBindings.PROJECT_ROOT) projectRoot: string,
-    @inject(`${BootBindings.BOOT_OPTIONS}#scripts`)
-    public scriptConfig: ArtifactOptions = {},
+    @inject(`${BootBindings.BOOT_OPTIONS}#observers`)
+    public observerConfig: ArtifactOptions = {},
   ) {
     super(
       projectRoot,
-      // Set LifeCycleScript Booter Options if passed in via bootConfig
-      Object.assign({}, LifeCycleScriptDefaults, scriptConfig),
+      // Set LifeCycleObserver Booter Options if passed in via bootConfig
+      Object.assign({}, LifeCycleObserverDefaults, observerConfig),
     );
   }
 
@@ -52,10 +55,12 @@ export class LifeCycleScriptBooter extends BaseArtifactBooter {
 
     this.observers = this.classes.filter(isLifeCycleObserverClass);
     for (const observer of this.observers) {
-      this.app
+      debug('Bind life cycle observer', observer);
+      const binding = this.app
         .bind(`lifeCycleObservers.${observer.name}`)
         .toClass(observer)
         .apply(asLifeCycleObserverBinding);
+      debug('Binding created for life cycle observer: %j', binding);
     }
   }
 }
@@ -63,8 +68,8 @@ export class LifeCycleScriptBooter extends BaseArtifactBooter {
 /**
  * Default ArtifactOptions for DataSourceBooter.
  */
-export const LifeCycleScriptDefaults: ArtifactOptions = {
-  dirs: ['scripts'],
-  extensions: ['.script.js'],
+export const LifeCycleObserverDefaults: ArtifactOptions = {
+  dirs: ['observers'],
+  extensions: ['.observer.js'],
   nested: true,
 };
