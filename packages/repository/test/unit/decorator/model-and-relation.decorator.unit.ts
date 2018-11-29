@@ -7,7 +7,7 @@ import {MetadataInspector} from '@loopback/context';
 import {expect} from '@loopback/testlab';
 import {RelationMetadata} from '../../..';
 import {
-  belongsTo,
+  belongsToUniquely,
   embedsMany,
   embedsOne,
   Entity,
@@ -93,14 +93,7 @@ describe('model decorator', () => {
     @property({type: 'string', id: true, generated: true})
     id: string;
 
-    @belongsTo(
-      () => Customer,
-      {},
-      {
-        id: false,
-        generated: true,
-      },
-    )
+    @belongsToUniquely(() => Customer)
     customerId: string;
 
     // Validates that property no longer requires a parameter
@@ -293,7 +286,7 @@ describe('model decorator', () => {
     expect(relationDef.target()).to.be.exactly(Customer);
   });
 
-  it('passes property metadata from belongsTo', () => {
+  it('passes property metadata from belongsToUniquely', () => {
     const propMeta =
       MetadataInspector.getAllPropertyMetadata(
         MODEL_PROPERTIES_KEY,
@@ -301,8 +294,8 @@ describe('model decorator', () => {
       ) || /* istanbul ignore next */ {};
 
     expect(propMeta.customerId).to.containEql({
-      id: false,
-      generated: true,
+      id: true,
+      generated: false,
     });
   });
 

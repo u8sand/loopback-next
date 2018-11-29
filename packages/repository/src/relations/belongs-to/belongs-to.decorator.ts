@@ -55,3 +55,21 @@ export function belongsTo<T extends Entity>(
     relation(meta)(decoratedTarget, decoratedKey);
   };
 }
+
+/**
+ * Sugar syntax for belongsTo decorator for hasOne relation. Calls belongsTo
+ * with property definition defaults for non-generated id field
+ * @param targetResolver
+ * @param definition
+ * @returns {(target: Object, key:string)}
+ */
+export function belongsToUniquely<T extends Entity>(
+  targetResolver: EntityResolver<T>,
+  definition?: Partial<BelongsToDefinition>,
+) {
+  const propertyMetaDefaults: Partial<PropertyDefinition> = {
+    id: true,
+    generated: false,
+  };
+  return belongsTo(targetResolver, definition, propertyMetaDefaults);
+}

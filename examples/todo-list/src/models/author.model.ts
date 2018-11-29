@@ -1,17 +1,9 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, model, property, belongsToUniquely} from '@loopback/repository';
 import {TodoList} from './todo-list.model';
 
 @model()
 export class Author extends Entity {
-  @belongsTo(
-    () => TodoList,
-    {},
-    {
-      id: true,
-      generated: false,
-      type: 'string',
-    },
-  )
+  @belongsToUniquely(() => TodoList)
   todoListId: string;
 
   @property({
