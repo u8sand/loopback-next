@@ -38,28 +38,11 @@ export namespace CoreBindings {
    */
   export const SERVERS = 'servers';
 
-  /**
-   * Binding tag for servers
-   */
-  export const SERVER_TAG = 'server';
-
   // component
   /**
    * Binding key for components
    */
   export const COMPONENTS = 'components';
-
-  /**
-   * Binding tag for components
-   */
-  export const COMPONENT_TAG = 'component';
-
-  // controller
-
-  /**
-   * Binding tag for components
-   */
-  export const CONTROLLER_TAG = 'controller';
 
   /**
    * Binding key for the controller class resolved in the current request
@@ -89,8 +72,25 @@ export namespace CoreBindings {
    */
   export const CONTROLLER_CURRENT = BindingKey.create('controller.current');
 
-  /**
-   * Binding tag for life cycle observers
-   */
-  export const LIFE_CYCLE_OBSERVER_TAG = 'lifeCycleObserver';
+  export namespace Tags {
+    /**
+     * Binding tag for components
+     */
+    export const COMPONENT = 'component';
+
+    /**
+     * Binding tag for servers
+     */
+    export const SERVER = 'server';
+
+    /**
+     * Binding tag for controllers
+     */
+    export const CONTROLLER = 'controller';
+
+    /**
+     * Binding tag for life cycle observers
+     */
+    export const LIFE_CYCLE_OBSERVER = 'lifeCycleObserver';
+  }
 }

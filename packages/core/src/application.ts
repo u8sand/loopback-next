@@ -14,13 +14,13 @@ import {Component, mountComponent} from './component';
 import {CoreBindings} from './keys';
 import {
   asLifeCycleObserverBinding,
-  isLifeCycleObserver,
   isLifeCycleObserverClass,
   LifeCycleObserver,
 } from './lifecycle';
 import {Server} from './server';
-import debugModule = require('debug');
-const debug = debugModule('loopback:core:application');
+const CoreTags = CoreBindings.Tags;
+import debugFactory = require('debug');
+const debug = debugFactory('loopback:core:application');
 
 /**
  * Application is the container for various types of artifacts, such as
@@ -59,7 +59,7 @@ export class Application extends Context implements LifeCycleObserver {
     debug('Adding controller %s', name);
     return this.bind(key)
       .toClass(controllerCtor)
-      .tag(CoreBindings.CONTROLLER_TAG);
+      .tag(CoreTags.CONTROLLER);
   }
 
   /**
@@ -88,7 +88,7 @@ export class Application extends Context implements LifeCycleObserver {
     debug('Adding server %s', suffix);
     return this.bind(key)
       .toClass(ctor)
-      .tag(CoreBindings.SERVER_TAG)
+      .tag(CoreTags.SERVER)
       .apply(asLifeCycleObserverBinding);
   }
 
@@ -149,14 +149,7 @@ export class Application extends Context implements LifeCycleObserver {
   public async start(): Promise<void> {
     debug('Starting the application...');
     const bindings = this._findLifeCycleObserverBindings();
-    for (const binding of bindings) {
-      const observer = await this.get<LifeCycleObserver>(binding.key);
-      if (isLifeCycleObserver(observer)) {
-        debug('Starting binding %s...', binding.key);
-        await observer.start();
-        debug('Binding %s is now started.', binding.key);
-      }
-    }
+    await this._notifyLifeCycleObservers(bindings, 'start');
     debug('The application is now started.');
   }
 
@@ -167,31 +160,24 @@ export class Application extends Context implements LifeCycleObserver {
    */
   public async stop(): Promise<void> {
     debug('Stopping the application...');
-    const bindings = this._findLifeCycleObserverBindings();
+    const bindings = this._findLifeCycleObserverBindings().reverse();
     // Stop in the reverse order
-    for (const binding of bindings.reverse()) {
-      const observer = await this.get<LifeCycleObserver>(binding.key);
-      if (isLifeCycleObserver(observer)) {
-        debug('Stopping binding %s...', binding.key);
-        await observer.stop();
-        debug('Binding %s is now stopped', binding.key);
-      }
-    }
+    await this._notifyLifeCycleObservers(bindings, 'stop');
     debug('The application is now stopped.');
   }
 
   /**
    * Find all life cycle observer bindings. By default, a constant or singleton
-   * binding tagged with `CoreBindings.LIFE_CYCLE_OBSERVER_TAG` or
-   * `CoreBindings.SERVER_TAG`.
+   * binding tagged with `CoreBindings.Tags.LIFE_CYCLE_OBSERVER` or
+   * `CoreBindings.Tags.SERVER`.
    */
   protected _findLifeCycleObserverBindings() {
     const bindings = this.find<LifeCycleObserver>(
       binding =>
         (binding.type === BindingType.CONSTANT ||
           binding.scope === BindingScope.SINGLETON) &&
-        (binding.tagMap[CoreBindings.LIFE_CYCLE_OBSERVER_TAG] != null ||
-          binding.tagMap[CoreBindings.SERVER_TAG]),
+        (binding.tagMap[CoreTags.LIFE_CYCLE_OBSERVER] != null ||
+          binding.tagMap[CoreTags.SERVER]),
     );
     return this._sortLifeCycleObserverBindings(bindings);
   }
@@ -206,10 +192,41 @@ export class Application extends Context implements LifeCycleObserver {
     bindings: Readonly<Binding<LifeCycleObserver>>[],
   ) {
     return bindings.sort((b1, b2) => {
-      const tag1 = b1.tagMap[CoreBindings.SERVER_TAG] || '';
-      const tag2 = b2.tagMap[CoreBindings.SERVER_TAG] || '';
+      const tag1 = b1.tagMap[CoreTags.SERVER] || '';
+      const tag2 = b2.tagMap[CoreTags.SERVER] || '';
       return tag1 > tag2 ? 1 : tag1 < tag2 ? -1 : 0;
     });
+  }
+
+  /**
+   * Notify each of bindings with the given event
+   * @param bindings An array of bindings for life cycle observers
+   * @param event Event name
+   */
+  protected async _notifyLifeCycleObservers(
+    bindings: Readonly<Binding<LifeCycleObserver>>[],
+    event: keyof LifeCycleObserver,
+  ) {
+    for (const binding of bindings) {
+      const observer = await this.get<LifeCycleObserver>(binding.key);
+      debug('Notifying binding %s of "%s" event...', binding.key, event);
+      await this._invokeLifeCycleObserver(observer, event);
+      debug('Binding %s has processed "%s" event.', binding.key, event);
+    }
+  }
+
+  /**
+   * Invoke an observer for the given event
+   * @param observer A life cycle observer
+   * @param event Event name
+   */
+  protected async _invokeLifeCycleObserver(
+    observer: LifeCycleObserver,
+    event: keyof LifeCycleObserver,
+  ) {
+    if (typeof observer[event] === 'function') {
+      await observer[event]();
+    }
   }
 
   /**
@@ -239,7 +256,7 @@ export class Application extends Context implements LifeCycleObserver {
     const binding = this.bind(componentKey)
       .toClass(componentCtor)
       .inScope(BindingScope.SINGLETON)
-      .tag(CoreBindings.COMPONENT_TAG);
+      .tag(CoreTags.COMPONENT);
     if (isLifeCycleObserverClass(componentCtor)) {
       binding.apply(asLifeCycleObserverBinding);
     }

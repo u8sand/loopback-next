@@ -43,6 +43,6 @@ export function isLifeCycleObserverClass(
  */
 export function asLifeCycleObserverBinding<T = unknown>(binding: Binding<T>) {
   return binding
-    .tag(CoreBindings.LIFE_CYCLE_OBSERVER_TAG)
+    .tag(CoreBindings.Tags.LIFE_CYCLE_OBSERVER)
     .inScope(BindingScope.SINGLETON);
 }

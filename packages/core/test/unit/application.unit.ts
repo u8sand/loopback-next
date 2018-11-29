@@ -20,6 +20,7 @@ import {
   LifeCycleObserver,
   asLifeCycleObserverBinding,
 } from '../..';
+const CoreTags = CoreBindings.Tags;
 
 describe('Application', () => {
   describe('controller binding', () => {
@@ -30,22 +31,18 @@ describe('Application', () => {
 
     it('binds a controller', () => {
       const binding = app.controller(MyController);
-      expect(Array.from(binding.tagNames)).to.containEql(
-        CoreBindings.CONTROLLER_TAG,
-      );
+      expect(Array.from(binding.tagNames)).to.containEql(CoreTags.CONTROLLER);
       expect(binding.key).to.equal('controllers.MyController');
-      expect(findKeysByTag(app, CoreBindings.CONTROLLER_TAG)).to.containEql(
+      expect(findKeysByTag(app, CoreTags.CONTROLLER)).to.containEql(
         binding.key,
       );
     });
 
     it('binds a controller with custom name', () => {
       const binding = app.controller(MyController, 'my-controller');
-      expect(Array.from(binding.tagNames)).to.containEql(
-        CoreBindings.CONTROLLER_TAG,
-      );
+      expect(Array.from(binding.tagNames)).to.containEql(CoreTags.CONTROLLER);
       expect(binding.key).to.equal('controllers.my-controller');
-      expect(findKeysByTag(app, CoreBindings.CONTROLLER_TAG)).to.containEql(
+      expect(findKeysByTag(app, CoreTags.CONTROLLER)).to.containEql(
         binding.key,
       );
     });
@@ -64,14 +61,14 @@ describe('Application', () => {
 
     it('binds a component', () => {
       app.component(MyComponent);
-      expect(findKeysByTag(app, CoreBindings.COMPONENT_TAG)).to.containEql(
+      expect(findKeysByTag(app, CoreTags.COMPONENT)).to.containEql(
         'components.MyComponent',
       );
     });
 
     it('binds a component with custom name', () => {
       app.component(MyComponent, 'my-component');
-      expect(findKeysByTag(app, CoreBindings.COMPONENT_TAG)).to.containEql(
+      expect(findKeysByTag(app, CoreTags.COMPONENT)).to.containEql(
         'components.my-component',
       );
     });
@@ -152,9 +149,7 @@ describe('Application', () => {
     it('defaults to constructor name', async () => {
       const app = new Application();
       const binding = app.server(FakeServer);
-      expect(Array.from(binding.tagNames)).to.containEql(
-        CoreBindings.SERVER_TAG,
-      );
+      expect(Array.from(binding.tagNames)).to.containEql(CoreTags.SERVER);
       const result = await app.getServer(FakeServer.name);
       expect(result.constructor.name).to.equal(FakeServer.name);
     });
@@ -170,12 +165,8 @@ describe('Application', () => {
     it('allows binding of multiple servers as an array', async () => {
       const app = new Application();
       const bindings = app.servers([FakeServer, AnotherServer]);
-      expect(Array.from(bindings[0].tagNames)).to.containEql(
-        CoreBindings.SERVER_TAG,
-      );
-      expect(Array.from(bindings[1].tagNames)).to.containEql(
-        CoreBindings.SERVER_TAG,
-      );
+      expect(Array.from(bindings[0].tagNames)).to.containEql(CoreTags.SERVER);
+      expect(Array.from(bindings[1].tagNames)).to.containEql(CoreTags.SERVER);
       const fakeResult = await app.getServer(FakeServer);
       expect(fakeResult.constructor.name).to.equal(FakeServer.name);
       const AnotherResult = await app.getServer(AnotherServer);
@@ -205,7 +196,7 @@ describe('Application', () => {
       app
         .bind('fake-server')
         .toClass(FakeServer)
-        .tag(CoreBindings.SERVER_TAG)
+        .tag(CoreTags.SERVER)
         .inScope(BindingScope.SINGLETON);
       await app.start();
       const server = await app.get<FakeServer>('fake-server');
@@ -270,7 +261,7 @@ describe('Application', () => {
       app
         .bind('my-server')
         .to(new MockObserver('server'))
-        .tag(CoreBindings.SERVER_TAG)
+        .tag(CoreTags.SERVER)
         .apply(asLifeCycleObserverBinding);
 
       await app.start();
